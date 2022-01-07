@@ -8,15 +8,24 @@
     "test": "node src/__tests__/runner"
   },
   "gypfile": true,
-  "keywords": [],
+  "keywords": [
+    "aoi",
+    "bdfd",
+    "api",
+    "compiler"
+  ],
+  "contributors": [
+    "ruben40000",
+    "leref"
+  ],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
-    "benchmark": "^2.1.4",
     "bindings": "^1.5.0",
     "node-addon-api": "^3.2.1"
   },
   "devDependencies": {
-    "@types/benchmark": "^2.1.1"
+    "@types/benchmark": "^2.1.1",
+    "benchmark": "^2.1.4"
   }
 }

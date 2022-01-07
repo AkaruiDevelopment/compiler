@@ -1,0 +1,22 @@
+{
+  "name": "aoi-compiler",
+  "version": "1.0.0",
+  "description": "A compiler for aoi.js written in C++ as a node.js addon.",
+  "main": "src/index.js",
+  "types": "src/index.d.ts",
+  "scripts": {
+    "test": "node src/__tests__/runner"
+  },
+  "gypfile": true,
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "benchmark": "^2.1.4",
+    "bindings": "^1.5.0",
+    "node-addon-api": "^3.2.1"
+  },
+  "devDependencies": {
+    "@types/benchmark": "^2.1.1"
+  }
+}

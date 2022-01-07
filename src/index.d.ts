@@ -122,8 +122,10 @@ export class Compiler {
 
 export const path: string
 
+export type RawFunctionUnion = string[] | RawFunctionData[]
+
 /**
  * Sorts an array of functions.
  * @param arr The functions to sort.
  */
-export function sort_array(arr: Array<string | RawFunctionData>): string[]
+export function sort_array<T extends RawFunctionUnion>(arr: T): T

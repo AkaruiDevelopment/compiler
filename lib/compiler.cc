@@ -269,7 +269,7 @@ FieldReaderResult Compiler::read_function_fields(Napi::Env env, FunctionData& re
             if (holds_alternative<int>(hold)) 
             {
                 escaped = false;
-                code += letter;
+                inside += letter;
                 continue;
             }
 

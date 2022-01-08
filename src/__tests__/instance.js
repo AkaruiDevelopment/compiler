@@ -4,7 +4,7 @@ function sorter(x, y) {
     return x.length < y.length;
 }
 
-const mycode = `my code $authorID[bro] $author`
+const mycode = `my code $authorID[bro] $author[owa $]`
 
 const myfunctions = sort_array(
     [

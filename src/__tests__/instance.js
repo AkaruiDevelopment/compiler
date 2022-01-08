@@ -4,15 +4,20 @@ function sorter(x, y) {
     return x.length < y.length;
 }
 
-const mycode = `my code $authorID[bro] $author[]`
+const mycode = `my code $authorID[bro] $author`
 
 const myfunctions = sort_array(
     [
         {
             name: "$authorID",
-            brackets: false
+            brackets: false,
+            optional: false
         },
-        "$author"
+        {
+            name: "$author",
+            brackets: true,
+            optional: false
+        }
     ]
 )
 

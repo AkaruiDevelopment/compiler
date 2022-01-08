@@ -12,6 +12,12 @@ export interface RawFunctionData {
      * @default true
      */
     brackets?: boolean
+
+    /**
+     * Whether this function's brackets are optional.
+     * @default true
+     */
+    optional?: boolean
 }
 
 /**
@@ -122,7 +128,7 @@ export class Compiler {
 
 export const path: string
 
-export type RawFunctionUnion = string[] | RawFunctionData[]
+export type RawFunctionUnion = string[] | RawFunctionData[] | (string[] | RawFunctionData[])
 
 /**
  * Sorts an array of functions.

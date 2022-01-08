@@ -337,10 +337,19 @@ variant<int, FunctionData> Compiler::read_function(Napi::Env env, MatchedFunctio
 
     this->skip(func.size);
 
-    if (func.ref.brackets && this->is_open_bracket(this->peek())) 
+    if (func.ref.brackets) 
     {
-        this->skip(1);
-        FieldReaderResult res = this->read_function_fields(env, fn);
+        char peek = this->peek();
+        if (this->is_open_bracket(peek))
+        {
+            this->skip(1);
+            FieldReaderResult res = this->read_function_fields(env, fn);
+        }
+        else if (!func.ref.optional)
+        {
+            Error::New(env, "Function " + func.name + " requires brackets.").ThrowAsJavaScriptException();
+            return 0;
+        }
     }
     
     return fn;

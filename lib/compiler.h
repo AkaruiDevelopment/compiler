@@ -20,6 +20,7 @@ struct FunctionData {
 
 struct RawFunctionData {
     bool brackets;
+    bool optional;
     string name;
 };
 

@@ -20,6 +20,7 @@ Result resolve_napi_functions_array(Napi::Env env, Napi::Array& arr, vector<RawF
             dst.push_back(
                 RawFunctionData {
                     true,
+                    true,
                     val.As<String>()
                 }
             );
@@ -29,6 +30,12 @@ Result resolve_napi_functions_array(Napi::Env env, Napi::Array& arr, vector<RawF
             Object v = val.As<Object>();
             Value brackets = v.Get("brackets");
             Value name = v.Get("name");
+            Value optional = v.Get("optional");
+
+            if (optional.IsUndefined())
+            {
+                optional = Boolean::New(env, true);
+            }
 
             if (brackets.IsUndefined())
             {
@@ -44,6 +51,7 @@ Result resolve_napi_functions_array(Napi::Env env, Napi::Array& arr, vector<RawF
             dst.push_back(
                 RawFunctionData {
                     brackets.As<Boolean>(),
+                    optional.As<Boolean>(),
                     name.As<String>()
                 }
             );

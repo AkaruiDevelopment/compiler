@@ -101,6 +101,7 @@ Compiler::Compiler(CInfo info): ObjectWrap<Compiler>(info)
 Compiler* Compiler::seek(size_t pos)
 {
     this->current = pos;
+
     return this;
 }
 
@@ -325,7 +326,7 @@ FieldReaderResult Compiler::read_function_fields(Napi::Env env, FunctionData& re
             inside += letter;
         }
     } while (!this->eof());
-    
+
     Error::New(env, "Function " + ref.name + "[" + inside + "... has no closure bracket.").ThrowAsJavaScriptException();
 
     return FieldReaderResult::Failed;
@@ -343,7 +344,19 @@ variant<int, FunctionData> Compiler::read_function(Napi::Env env, MatchedFunctio
         if (this->is_open_bracket(peek))
         {
             this->skip(1);
+            
+            if (this->eof()) 
+            {
+                Error::New(env, "Function " + fn.name + " has no closure bracket.").ThrowAsJavaScriptException();
+                return 0;
+            }
+
             FieldReaderResult res = this->read_function_fields(env, fn);
+
+            if (res == FieldReaderResult::Failed) 
+            {
+                return 0;
+            }
         }
         else if (!func.ref.optional)
         {

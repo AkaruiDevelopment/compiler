@@ -9,7 +9,7 @@
 using namespace Napi;
 using namespace std;
 
-Result resolve_napi_functions_array(Napi::Env env, Napi::Array& arr, vector<RawFunctionData>& dst)
+Result resolve_napi_functions_array(Napi::Env env, Napi::Array arr, vector<RawFunctionData>& dst)
 {
     for (unsigned int i = 0;i < arr.Length();++i)
     {

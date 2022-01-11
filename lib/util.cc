@@ -127,7 +127,7 @@ Napi::Array vec_to_napi_array(Napi::Env env, vector<T>& vec, K lm)
 
     size_t len = 0;
 
-    vector<T>::iterator it;
+    typename vector<T>::iterator it;
     for (it = vec.begin();it != vec.end();++it) 
     {
         arr.Set(len++, lm(*it));
@@ -230,7 +230,7 @@ vector<MatchedFunctionData> match_functions(vector<RawFunctionData>& fns, regex 
         
         string fn = match.str(1);
 
-        RawFunctionData& f = find_in_vector<RawFunctionData>(fns, [&fn](RawFunctionData& r)
+        RawFunctionData f = find_in_vector<RawFunctionData>(fns, [fn](RawFunctionData r)
         {
             return r.name == fn;
         });

@@ -121,7 +121,7 @@ vector<FunctionData> filter_overloads_for(FunctionData& ref, string& code)
 }
 
 template<typename T, typename K>
-Napi::Array vec_to_napi_array(Napi::Env env, vector<T>& vec, K lm)
+Napi::Array vec_to_napi_array(Napi::Env env, vector<T> vec, K lm)
 {
     Napi::Array arr = Napi::Array::New(env);
 

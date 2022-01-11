@@ -13,7 +13,7 @@ template<typename T, typename K, typename C>
 T find_in_vector(vector<K>& v, C l);
 
 template<typename T, typename K>
-Napi::Array vec_to_napi_array(Napi::Env env, vector<T>& vec, K lm);
+Napi::Array vec_to_napi_array(Napi::Env env, vector<T> vec, K lm);
 Napi::Array sort_array(CInfo info);
 
 Napi::Object function_to_napi_object(Napi::Env env, FunctionData func);

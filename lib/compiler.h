@@ -4,7 +4,6 @@
 #include <napi.h>
 #include <regex>
 #include <vector>
-#include <variant>
 #include <string>
 
 using namespace Napi;
@@ -14,7 +13,7 @@ struct FunctionData {
     string name;
     string id;
     vector<FunctionData> overloads;
-    variant<int, string> inside;
+    string inside;
     vector<string> fields;
 };
 
@@ -69,6 +68,7 @@ class Compiler : public ObjectWrap<Compiler>
         int64_t current;
         size_t sys;
 
+        bool is_empty(string s);
         bool is_dollar(char& c);
         bool is_escape_char(char& c);
         bool is_closure_bracket(char& c);
@@ -85,9 +85,10 @@ class Compiler : public ObjectWrap<Compiler>
         char& peek();
 
         void shift();
-        variant<int, MatchedFunctionData> get_indexed_function();
-        variant<int, FunctionData> read_function(Napi::Env env, MatchedFunctionData &func);
+        MatchedFunctionData get_indexed_function();
+        FunctionData read_function(Napi::Env env, MatchedFunctionData &func);
         FunctionData create_function(string name);
+        MatchedFunctionData create_match_function(string name);
         FieldReaderResult read_function_fields(Napi::Env env, FunctionData& ref);
 
         bool is_array_sorted();

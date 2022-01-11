@@ -200,16 +200,30 @@ void Compiler::shift()
     this->matches.erase(this->matches.begin());
 }
 
-variant<int, MatchedFunctionData> Compiler::get_indexed_function() 
+MatchedFunctionData Compiler::get_indexed_function() 
 {
-    if (this->flen == 0) return 0;
+    if (this->flen == 0) return this->create_match_function("");
 
     int64_t index = this->current;
     MatchedFunctionData match = this->matches[0];
 
     if (match.position == index) return match;
 
-    return 0;
+    return this->create_match_function("");
+}
+
+MatchedFunctionData Compiler::create_match_function(string name)
+{
+    return MatchedFunctionData {
+        name,
+        0,
+        0,
+        {
+            false,
+            false,
+            ""
+        }
+    };
 }
 
 Value Compiler::get_compiled_code(CInfo info) 
@@ -228,7 +242,7 @@ FunctionData Compiler::create_function(string name)
         name,
         this->system_id(),
         {},
-        0,
+        "",
         {}
     };
 }
@@ -265,16 +279,14 @@ FieldReaderResult Compiler::read_function_fields(Napi::Env env, FunctionData& re
         }
         else if (this->is_dollar(letter))
         {
-            auto hold = this->get_indexed_function();
+            auto fn = this->get_indexed_function();
 
-            if (holds_alternative<int>(hold)) 
+            if (this->is_empty(fn.name)) 
             {
                 escaped = false;
                 inside += letter;
                 continue;
             }
-
-            MatchedFunctionData fn = get<MatchedFunctionData>(hold);
 
             this->shift();
 
@@ -285,14 +297,12 @@ FieldReaderResult Compiler::read_function_fields(Napi::Env env, FunctionData& re
                 continue;
             }
             
-            variant<int, FunctionData> func = this->read_function(env, fn);
+            FunctionData f = this->read_function(env, fn);
 
-            if (holds_alternative<int>(func))
+            if (this->is_empty(f.name))
             {
                 return FieldReaderResult::Failed;
             }
-
-            FunctionData f = get<FunctionData>(func);
 
             ref.overloads.push_back(f);
 
@@ -332,7 +342,7 @@ FieldReaderResult Compiler::read_function_fields(Napi::Env env, FunctionData& re
     return FieldReaderResult::Failed;
 }
 
-variant<int, FunctionData> Compiler::read_function(Napi::Env env, MatchedFunctionData& func) 
+FunctionData Compiler::read_function(Napi::Env env, MatchedFunctionData& func) 
 {
     FunctionData fn = this->create_function(func.name);
 
@@ -341,6 +351,7 @@ variant<int, FunctionData> Compiler::read_function(Napi::Env env, MatchedFunctio
     if (func.ref.brackets) 
     {
         char peek = this->peek();
+
         if (this->is_open_bracket(peek))
         {
             this->skip(1);
@@ -348,20 +359,20 @@ variant<int, FunctionData> Compiler::read_function(Napi::Env env, MatchedFunctio
             if (this->eof()) 
             {
                 Error::New(env, "Function " + fn.name + " has no closure bracket.").ThrowAsJavaScriptException();
-                return 0;
+                return this->create_function("");
             }
 
             FieldReaderResult res = this->read_function_fields(env, fn);
 
             if (res == FieldReaderResult::Failed) 
             {
-                return 0;
+                return this->create_function("");
             }
         }
         else if (!func.ref.optional)
         {
             Error::New(env, "Function " + func.name + " requires brackets.").ThrowAsJavaScriptException();
-            return 0;
+            return this->create_function("");
         }
     }
     
@@ -391,6 +402,11 @@ bool Compiler::is_escape_char(char& c)
     return c == '\\';
 }
 
+bool Compiler::is_empty(string s) 
+{
+    return s == "";
+}
+
 Napi::Value Compiler::start(CInfo info) 
 {
     if (this->flen == 0) return this->Value();
@@ -405,16 +421,14 @@ Napi::Value Compiler::start(CInfo info)
 
         if (this->is_dollar(letter)) 
         {
-            auto hold = this->get_indexed_function();
+            auto fn = this->get_indexed_function();
 
-            if (holds_alternative<int>(hold)) 
+            if (this->is_empty(fn.name)) 
             {
                 escaped = false;
                 code += letter;
                 continue;
             }
-
-            MatchedFunctionData fn = get<MatchedFunctionData>(hold);
 
             this->shift();
             
@@ -425,14 +439,12 @@ Napi::Value Compiler::start(CInfo info)
                 continue;
             }
 
-            variant<int, FunctionData> func = this->read_function(env, fn);
+            FunctionData f = this->read_function(env, fn);
 
-            if (holds_alternative<int>(func))
+            if (this->is_empty(f.name))
             {
                 return this->Value();
             }
-            
-            FunctionData f = get<FunctionData>(func);
 
             this->functions.push_back(f);
 

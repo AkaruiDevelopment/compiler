@@ -140,7 +140,7 @@ Napi::Object function_to_napi_object(Napi::Env env, FunctionData func)
 {
     Napi::Object obj = Napi::Object::New(env);
 
-    Value inside = holds_alternative<int>(func.inside) ? env.Null() : Napi::String::New(env, get<string>(func.inside));
+    Value inside = func.fields.size() == 0 ? env.Null() : Napi::String::New(env, func.inside);
 
     obj.Set("name", func.name);
     obj.Set("id", func.id);

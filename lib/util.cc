@@ -83,7 +83,7 @@ Napi::Array sort_array(CInfo info)
 {
     Array arr = info[0].As<Array>();
 
-    for (unsigned int i = 0;i < arr.Length() - 1;++i)
+    for (int i = 0;i < (int) arr.Length() - 1;++i)
     {
         Value rawl = arr.Get(i);
         Value rawr = arr.Get(i + 1);

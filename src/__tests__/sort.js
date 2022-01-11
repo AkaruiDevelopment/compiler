@@ -4,6 +4,17 @@ const uwu = [
     "tmr",
     "ok",
     "o",
+    "o",
+    "uwuw",
+    "tmr",
+    "ok",
+    "o",
+    "o",
+    "uwuw",
+    "tmr",
+    "ok",
+    "o",
+    "o",
     "uwuw"
 ].map(c => ({ name: c }))
 

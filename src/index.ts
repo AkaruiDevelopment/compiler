@@ -213,8 +213,8 @@ export class Compiler {
                 continue
             } else if (this.isDollar(char)) {
                 if (this.#matches.length !== 0 && this.#matches[0].position === this.index - 1) {
-                    this.index--    
-                    const fn = this.parseFunction() as FunctionData
+                    this.index--
+                    const fn = this.parseFunction(false) as FunctionData 
                     ref.inside += fn.id
                     ref.fields[len].value += fn.id 
                     ref.fields[len].overloads.push(fn)
@@ -299,14 +299,16 @@ export class Compiler {
         return t === '\\'
     }
 
-    parseFunction(): FunctionData | null | string {
+    parseFunction(allow = true): FunctionData | null | string {
         const next = this.#matches.shift()
         if (!next) return null 
 
         const old = this.index
         this.index = next.position
 
-        this.result += this.code.slice(old, this.index)
+        if (allow) {
+            this.result += this.code.slice(old, this.index)
+        }
 
         this.index += next.size
         
@@ -323,7 +325,7 @@ export class Compiler {
 
             return this.readFunctionFields(next.name)
         } else {
-            if (this.isBracketOpen(this.peek()!)) {
+            if (this.isBracketOpen(this.char()!)) {
                 return this.readFunctionFields(next.name)
             } else {
                 return this.createFunction(next.name)

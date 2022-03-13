@@ -8,18 +8,14 @@ __1.Compiler.setFunctions([
         brackets: true
     },
     '$authorID',
-    '$username'
+    {
+        name: '$username',
+        optional: true,
+        brackets: true
+    }
 ]);
 console.log(__1.Compiler);
-const t = new __1.Compiler('uwu $authorID uwuwuwuwu $authorID $username');
-console.log((0, util_1.inspect)(t.start().getFunctions(), { colors: true, depth: 5 }));
+const t = new __1.Compiler('$authorID ok $username[ok;$sum[1;2] tmr]');
+console.log((0, util_1.inspect)(t.start(), { colors: true, depth: 5 }));
 const code = "uwu $authorID uwuwuwuwu $authorID $username $authorID $username".repeat(1000);
-function perf() {
-    const t = new __1.Compiler(code);
-    const p = performance.now();
-    t.start();
-    console.log(`Parsed ${t["functions"].length} functions in string length ${code.length} in ${performance.now() - p}ms`);
-    return perf;
-}
-perf()()()()();
 //# sourceMappingURL=compiler.js.map

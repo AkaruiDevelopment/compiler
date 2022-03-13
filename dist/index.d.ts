@@ -109,7 +109,7 @@ export declare class Compiler {
     isBracketClosure(t: string): boolean;
     isSemicolon(t: string): boolean;
     isEscapeChar(t: string): boolean;
-    parseFunction(): FunctionData | null | string;
+    parseFunction(allow?: boolean): FunctionData | null | string;
     createFunction(name: string, inside?: null | string, fields?: FieldData[]): FunctionData;
     peek(): string | null;
     next(): string | null;

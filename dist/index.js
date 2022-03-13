@@ -101,7 +101,7 @@ class Compiler {
             else if (this.isDollar(char)) {
                 if (this.#matches.length !== 0 && this.#matches[0].position === this.index - 1) {
                     this.index--;
-                    const fn = this.parseFunction();
+                    const fn = this.parseFunction(false);
                     ref.inside += fn.id;
                     ref.fields[len].value += fn.id;
                     ref.fields[len].overloads.push(fn);
@@ -172,13 +172,15 @@ class Compiler {
     isEscapeChar(t) {
         return t === '\\';
     }
-    parseFunction() {
+    parseFunction(allow = true) {
         const next = this.#matches.shift();
         if (!next)
             return null;
         const old = this.index;
         this.index = next.position;
-        this.result += this.code.slice(old, this.index);
+        if (allow) {
+            this.result += this.code.slice(old, this.index);
+        }
         this.index += next.size;
         if (this.isEscapeChar(this.back())) {
             return next.name;
@@ -193,7 +195,7 @@ class Compiler {
             return this.readFunctionFields(next.name);
         }
         else {
-            if (this.isBracketOpen(this.peek())) {
+            if (this.isBracketOpen(this.char())) {
                 return this.readFunctionFields(next.name);
             }
             else {

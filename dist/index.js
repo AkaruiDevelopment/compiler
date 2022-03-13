@@ -151,10 +151,9 @@ class Compiler {
             const got = this.parseFunction();
             typeof got === 'string' ?
                 this.push(got)
-                : got === null ?
-                    this.push(this.code.slice(this.index, -1))
-                    : (this.functions.push(got),
-                        this.push(got.id));
+                : got === null ? (this.push(this.code.slice(this.index, -1)),
+                    this.index = this.code.length) : (this.functions.push(got),
+                    this.push(got.id));
         }
         return this;
     }
@@ -227,9 +226,6 @@ class Compiler {
      */
     getFunctions() {
         return this.functions;
-    }
-    reset() {
-        return this;
     }
 }
 exports.Compiler = Compiler;

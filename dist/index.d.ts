@@ -119,6 +119,5 @@ export declare class Compiler {
      * Gets functions used in the code.
      */
     getFunctions(): FunctionData[];
-    reset(): this;
 }
 //# sourceMappingURL=index.d.ts.map

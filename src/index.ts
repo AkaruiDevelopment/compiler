@@ -223,7 +223,7 @@ export class Compiler {
                     ref.fields[len].value += char 
                 }
             } else if (this.isBracketClosure(char)) {
-                closed = true 
+                closed = true
                 break
             } else if (this.isSemicolon(char)) {
                 ref.inside += char 
@@ -273,7 +273,7 @@ export class Compiler {
             typeof got === 'string' ?
                 this.push(got)
             : got === null ? (
-                this.push(this.code.slice(this.index, -1)),
+                this.push(this.code.slice(this.index)),
                 this.index = this.code.length
             ) : (
                 this.functions.push(got),

@@ -1,13 +1,15 @@
 {
   "name": "aoi-compiler",
-  "version": "1.0.0",
-  "description": "A compiler for aoi.js written in C++ as a node.js addon.",
-  "main": "src/index.js",
-  "types": "src/index.d.ts",
+  "version": "2.0.0",
+  "description": "A compiler for aoi.js written in TypeScript.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "module": "dist/index.mjs",
   "scripts": {
-    "test": "node src/__tests__/runner"
+    "pub": "tsc && npm run gen",
+    "gen": "gen-esm-wrapper dist/index.js dist/index.mjs",
+    "test": "tsc && node dist/__tests__/runner"
   },
-  "gypfile": true,
   "keywords": [
     "aoi",
     "bdfd",
@@ -20,12 +22,13 @@
   ],
   "author": "",
   "license": "MIT",
-  "dependencies": {
-    "bindings": "^1.5.0",
-    "node-addon-api": "^3.2.1"
-  },
   "devDependencies": {
     "@types/benchmark": "^2.1.1",
     "benchmark": "^2.1.4"
+  },
+  "dependencies": {
+    "@types/node": "^17.0.21",
+    "gen-esm-wrapper": "^1.1.3",
+    "typescript": "^4.7.0-dev.20220312"
   }
 }

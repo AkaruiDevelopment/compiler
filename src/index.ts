@@ -263,6 +263,11 @@ export class Compiler {
      * Compiles the code.
      */
     start() {
+        if (!this.#matches.length) {
+            this.result = this.code 
+            return this 
+        }
+
         while (!this.eof()) {
             const got = this.parseFunction()
             typeof got === 'string' ?

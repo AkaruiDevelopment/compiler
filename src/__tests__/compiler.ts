@@ -16,7 +16,7 @@ Compiler.setFunctions([
 
 console.log(Compiler)
 
-const t = new Compiler('$authorID ok $username[ok;$sum[1;2] tmr]')
+const t = new Compiler('1$username')
 
 console.log(inspect(t.start(), { colors: true, depth: 5 }))
 

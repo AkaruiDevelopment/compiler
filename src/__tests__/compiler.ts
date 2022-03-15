@@ -19,6 +19,9 @@ Compiler.setFunctions([
         name: '$message',
         brackets: true,
         optional: true 
+    },
+    {
+        name: '$username'
     }
 ])
 
@@ -31,3 +34,13 @@ $djsEval[true;$message]\`\`\``)
 console.log(inspect(t.start(), { colors: true, depth: 5 }))
 
 const code = "uwu $authorID uwuwuwuwu $authorID $username $authorID $username".repeat(1000)
+
+function perf() {
+    const c = new Compiler(code)
+    const t = performance.now()
+    c.start()
+    console.log(`${performance.now() -t}ms to parse ${c["functions"].length} functions in string of ${code.length} characters`)
+    return perf 
+}
+
+perf()()()()()

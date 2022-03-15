@@ -259,6 +259,7 @@ export class Compiler {
 
         return this 
     }
+
     /**
      * Compiles the code.
      */
@@ -270,7 +271,7 @@ export class Compiler {
 
         while (!this.eof()) {
             const got = this.parseFunction()
-            typeof got === 'string' ?
+            typeof(got) === 'string' ?
                 this.push(got)
             : got === null ? (
                 this.push(this.code.slice(this.index)),
@@ -304,6 +305,10 @@ export class Compiler {
         return t === '\\'
     }
 
+    private throw<T>(err: string): T {
+        throw new Error(err)
+    }
+
     parseFunction(allow = true): FunctionData | null | string {
         const next = this.#matches.shift()
         if (!next) return null 
@@ -317,25 +322,13 @@ export class Compiler {
 
         this.index += next.size
         
-        if (this.isEscapeChar(this.back())) {
-            return next.name
-        }
-
-        if (next.brackets === false) {
-            return this.createFunction(next.name)
-        } else if (next.brackets === true) {
-            if (!this.isBracketOpen(this.char()!)) {
-                throw new Error(`${next.name} requires brackets.`)
-            }
-
-            return this.readFunctionFields(next.name)
-        } else {
-            if (this.isBracketOpen(this.char()!)) {
-                return this.readFunctionFields(next.name)
-            } else {
-                return this.createFunction(next.name)
-            }
-        }
+        return this.isEscapeChar(this.back()) ? 
+            next.name : next.brackets === false ? 
+                this.createFunction(next.name) : 
+                next.brackets === true ?
+                    !this.isBracketOpen(this.char()!) ? this.throw(`${next.name} requires brackets.`) :
+                    this.readFunctionFields(next.name) :
+                this.createFunction(next.name)
     }
 
     createFunction(name: string, inside: null | string = null, fields: FieldData[] = []): FunctionData {

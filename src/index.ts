@@ -309,26 +309,34 @@ export class Compiler {
         throw new Error(err)
     }
 
+    at(i: number): string | null {
+        return this.code[i] ?? null 
+    }
+
     parseFunction(allow = true): FunctionData | null | string {
         const next = this.#matches.shift()
         if (!next) return null 
 
         const old = this.index
+
         this.index = next.position
 
+        const isEscapeChar = this.back() === '\\'
+
         if (allow) {
-            this.result += this.code.slice(old, this.index)
+            this.result += this.code.slice(old, isEscapeChar ? this.index - 1 : this.index)
         }
 
         this.index += next.size
-        
-        return this.isEscapeChar(this.back()) ? 
+
+        return isEscapeChar ? 
             next.name : next.brackets === false ? 
                 this.createFunction(next.name) : 
                 next.brackets === true ?
                     !this.isBracketOpen(this.char()!) ? this.throw(`${next.name} requires brackets.`) :
                     this.readFunctionFields(next.name) :
-                this.createFunction(next.name)
+                !this.isBracketOpen(this.char()!) ? this.createFunction(next.name) :
+                this.readFunctionFields(next.name)
     }
 
     createFunction(name: string, inside: null | string = null, fields: FieldData[] = []): FunctionData {

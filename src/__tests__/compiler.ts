@@ -27,9 +27,7 @@ Compiler.setFunctions([
 
 console.log(Compiler)
 
-const t = new Compiler(`$onlyIf[$includes[$clientOwnerID[|];$authorID]==true;nty]
-Output: \`\`\`js
-$djsEval[true;$message]\`\`\``)
+const t = new Compiler(`$authorID $message[\\$authorID]`)
 
 console.log(inspect(t.start(), { colors: true, depth: 5 }))
 

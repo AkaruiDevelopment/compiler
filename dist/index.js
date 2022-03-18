@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UnsafeCompiler = exports.Compiler = exports.iterate = void 0;
+exports.Compiler = exports.iterate = void 0;
 function iterate(iterable, fn) {
     let item;
     const arr = new Array();
@@ -179,23 +179,28 @@ class Compiler {
     throw(err) {
         throw new Error(err);
     }
+    at(i) {
+        return this.code[i] ?? null;
+    }
     parseFunction(allow = true) {
         const next = this.#matches.shift();
         if (!next)
             return null;
         const old = this.index;
         this.index = next.position;
+        const isEscapeChar = this.back() === '\\';
         if (allow) {
-            this.result += this.code.slice(old, this.index);
+            this.result += this.code.slice(old, isEscapeChar ? this.index - 1 : this.index);
         }
         this.index += next.size;
-        return this.isEscapeChar(this.back()) ?
+        return isEscapeChar ?
             next.name : next.brackets === false ?
             this.createFunction(next.name) :
             next.brackets === true ?
                 !this.isBracketOpen(this.char()) ? this.throw(`${next.name} requires brackets.`) :
                     this.readFunctionFields(next.name) :
-                this.createFunction(next.name);
+                !this.isBracketOpen(this.char()) ? this.createFunction(next.name) :
+                    this.readFunctionFields(next.name);
     }
     createFunction(name, inside = null, fields = []) {
         return {
@@ -225,40 +230,4 @@ class Compiler {
     }
 }
 exports.Compiler = Compiler;
-class UnsafeCompiler extends Compiler {
-    executor;
-    constructor(code) {
-        super(code);
-        this.executor = new Function(this.generateCopilerExecutor()).bind(this);
-    }
-    generateCopilerExecutor() {
-        const code = new Array(`const fns = []`);
-        const matches = this.getMatchedFunctions();
-        for (let i = 0, len = matches.length; i < len; i++) {
-            const match = matches[i];
-            const s = this["systemID"];
-            if (match.brackets === false) {
-                code.push(`fns.push({
-                    name: '${match.name}',
-                    id: '${s}',
-                    fields: [],
-                    inside: null
-                })`, `this.result += '${this["code"].slice(this["index"], this["index"] = match.position)}' + '${s}'`);
-                this["index"] += match.size;
-            }
-            else if (match.brackets === null) {
-                code.push(`this.result += '${this["code"].slice(this["index"], this["index"] = match.position)}' + '${s}'`);
-                this["index"] += match.size;
-                console.log(this.char());
-            }
-        }
-        code.push(`this.result += this.code.slice(this.index)`, `return fns`);
-        return code.join('\n');
-    }
-    start() {
-        super["functions"] = this.executor();
-        return this;
-    }
-}
-exports.UnsafeCompiler = UnsafeCompiler;
 //# sourceMappingURL=index.js.map

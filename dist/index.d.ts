@@ -36,7 +36,6 @@ export interface MatchedFunctionData {
      */
     size: number;
 }
-export declare type UnsafeCompilation = (this: UnsafeCompiler) => FunctionData[];
 /**
  * Represents a function's field.
  */
@@ -111,6 +110,7 @@ export declare class Compiler {
     isSemicolon(t: string): boolean;
     isEscapeChar(t: string): boolean;
     private throw;
+    at(i: number): string | null;
     parseFunction(allow?: boolean): FunctionData | null | string;
     createFunction(name: string, inside?: null | string, fields?: FieldData[]): FunctionData;
     peek(): string | null;
@@ -121,11 +121,5 @@ export declare class Compiler {
      * Gets functions used in the code.
      */
     getFunctions(): FunctionData[];
-}
-export declare class UnsafeCompiler extends Compiler {
-    executor: UnsafeCompilation;
-    constructor(code: string);
-    private generateCopilerExecutor;
-    start(): this;
 }
 //# sourceMappingURL=index.d.ts.map

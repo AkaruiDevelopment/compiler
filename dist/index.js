@@ -20,6 +20,7 @@ function getString(c) {
  * The main instance of a compiler.
  */
 class Compiler {
+    static insensitive = false;
     static BRACKET_FUNCTIONS = {};
     static FUNCTIONS = null;
     static REGEX = null;
@@ -43,7 +44,7 @@ class Compiler {
             const has = Compiler.BRACKET_FUNCTIONS[el[0]];
             const brackets = has === undefined ? false : has;
             return {
-                name: el[0],
+                name: Compiler.insensitive ? getString(Compiler.FUNCTIONS.find(c => getString(c).toLowerCase() === el[0].toLowerCase())) : el[0],
                 brackets,
                 position: el.index,
                 size: el[0].length
@@ -53,7 +54,7 @@ class Compiler {
     get systemID() {
         return `SYSTEM_FUNCTION(${this.#id++})`;
     }
-    static setFunctions(fns) {
+    static setFunctions(fns, insensitive = false) {
         if (Compiler.FUNCTIONS !== null)
             return false;
         Compiler.FUNCTIONS = fns.sort((x, y) => getString(y).length - getString(x).length);
@@ -66,7 +67,8 @@ class Compiler {
                 continue;
             this.BRACKET_FUNCTIONS[fn.name] = fn.optional ? null : true;
         }
-        Compiler.REGEX = new RegExp(fns.map(c => typeof c === 'string' ? `\\${c}` : `\\${c.name}`).join('|'), 'gm');
+        Compiler.insensitive = insensitive;
+        Compiler.REGEX = new RegExp(fns.map(c => typeof c === 'string' ? `\\${c}` : `\\${c.name}`).join('|'), `gm${insensitive ? 'i' : ''}`);
         return true;
     }
     skip(n) {

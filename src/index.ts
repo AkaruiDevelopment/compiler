@@ -108,6 +108,7 @@ export type RawFunctionUnion = string[] | RawFunctionData[] | (string[] | RawFun
  * The main instance of a compiler.
  */
 export class Compiler {
+    static insensitive = false
     static BRACKET_FUNCTIONS: Record<string, true | null> = {}
     static FUNCTIONS: Array<string | RawFunctionData> | null = null 
     private static REGEX: RegExp | null = null
@@ -138,7 +139,7 @@ export class Compiler {
             const brackets = has === undefined ? false : has 
 
             return {
-                name: el[0],
+                name: Compiler.insensitive ? getString(Compiler.FUNCTIONS!.find(c => getString(c).toLowerCase() === el[0].toLowerCase())!) : el[0],
                 brackets,
                 position: el.index!,
                 size: el[0].length
@@ -150,7 +151,7 @@ export class Compiler {
         return `SYSTEM_FUNCTION(${this.#id++})`
     }
 
-    static setFunctions(fns: Array<string | RawFunctionData>) {
+    static setFunctions(fns: Array<string | RawFunctionData>, insensitive = false) {
         if (Compiler.FUNCTIONS !== null) return false
         
         Compiler.FUNCTIONS = fns.sort(
@@ -168,9 +169,11 @@ export class Compiler {
             this.BRACKET_FUNCTIONS[fn.name] = fn.optional ? null : true
         }
 
+        Compiler.insensitive = insensitive
+
         Compiler.REGEX = new RegExp(fns.map(
             c => typeof c === 'string' ? `\\${c}` : `\\${c.name}` 
-        ).join('|'), 'gm')
+        ).join('|'), `gm${insensitive ? 'i' : ''}`)
 
         return true 
     }

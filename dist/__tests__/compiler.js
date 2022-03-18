@@ -24,9 +24,9 @@ __1.Compiler.setFunctions([
     {
         name: '$username'
     }
-]);
+], true);
 console.log(__1.Compiler);
-const t = new __1.Compiler(`$authorID $message[\\$authorID]`);
+const t = new __1.Compiler(`$autHorId $messAge[$authorid]`);
 console.log((0, util_1.inspect)(t.start(), { colors: true, depth: 5 }));
 const code = "uwu $authorID uwuwuwuwu $authorID $username $authorID $username".repeat(1000);
 function perf() {

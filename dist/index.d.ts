@@ -77,6 +77,7 @@ export declare type RawFunctionUnion = string[] | RawFunctionData[] | (string[] 
  */
 export declare class Compiler {
     #private;
+    static insensitive: boolean;
     static BRACKET_FUNCTIONS: Record<string, true | null>;
     static FUNCTIONS: Array<string | RawFunctionData> | null;
     private static REGEX;
@@ -91,7 +92,7 @@ export declare class Compiler {
     constructor(code: string);
     getMatchedFunctions(): MatchedFunctionData[];
     private get systemID();
-    static setFunctions(fns: Array<string | RawFunctionData>): boolean;
+    static setFunctions(fns: Array<string | RawFunctionData>, insensitive?: boolean): boolean;
     skip(n: number): void;
     isDollar(s: string): boolean;
     readFunctionFields(name: string): FunctionData;

@@ -23,11 +23,11 @@ Compiler.setFunctions([
     {
         name: '$username'
     }
-])
+], true)
 
 console.log(Compiler)
 
-const t = new Compiler(`$authorID $message[\\$authorID]`)
+const t = new Compiler(`$autHorId $messAge[$authorid]`)
 
 console.log(inspect(t.start(), { colors: true, depth: 5 }))
 
@@ -42,3 +42,4 @@ function perf() {
 }
 
 perf()()()()()
+

@@ -27,7 +27,7 @@ Compiler.setFunctions([
 
 console.log(Compiler)
 
-const t = new Compiler(`$autHorId $messAge[$authorid]`)
+const t = new Compiler(`$autHorId $djsEval`, 'owa')
 
 console.log(inspect(t.start(), { colors: true, depth: 5 }))
 
@@ -40,6 +40,3 @@ function perf() {
     console.log(`${performance.now() -t}ms to parse ${c["functions"].length} functions in string of ${code.length} characters`)
     return perf 
 }
-
-perf()()()()()
-

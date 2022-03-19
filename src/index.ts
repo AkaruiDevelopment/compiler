@@ -1,3 +1,5 @@
+import exp from "constants"
+
 /**
  * Data that can be passed to functions.
  */
@@ -83,6 +85,11 @@ export interface FunctionData {
     id: string
 }
 
+export interface Position {
+    column: number
+    line: number
+}
+
 export function iterate<K, R>(iterable: IterableIterator<K>, fn: (el: K) => R): R[] {
     let item: ReturnType<typeof iterable["next"]>
     const arr = new Array<R>()
@@ -107,7 +114,7 @@ export type RawFunctionUnion = string[] | RawFunctionData[] | (string[] | RawFun
 /**
  * The main instance of a compiler.
  */
-export class Compiler {
+export class Compiler<T extends unknown & { toString(): string }> {
     static insensitive = false
     static BRACKET_FUNCTIONS: Record<string, true | null> = {}
     static FUNCTIONS: Array<string | RawFunctionData> | null = null 
@@ -115,31 +122,35 @@ export class Compiler {
 
     private code: string
     private index = 0
+    private reference?: T
     private functions = new Array<FunctionData>()
 
     #matches: MatchedFunctionData[]
     #id = 0
 
     result = ''
-    
+
     /**
      * Instantiates a new compiler.
      * @param code The code to compile.
      */
-    constructor(code: string) {
+    constructor(code: string, reference?: T) {
         this.code = code
+        this.reference = reference
         this.#matches = this.getMatchedFunctions()
     }
 
     getMatchedFunctions(): MatchedFunctionData[] {
         const matches = this.code.matchAll(Compiler.REGEX!)
         return iterate(matches, (el) => {
-            const has = Compiler.BRACKET_FUNCTIONS[el[0]]
+            const name = Compiler.insensitive ? getString(Compiler.FUNCTIONS!.find(c => getString(c).toLowerCase() === el[0].toLowerCase())!) : el[0]
+
+            const has = Compiler.BRACKET_FUNCTIONS[name]
 
             const brackets = has === undefined ? false : has 
 
             return {
-                name: Compiler.insensitive ? getString(Compiler.FUNCTIONS!.find(c => getString(c).toLowerCase() === el[0].toLowerCase())!) : el[0],
+                name,
                 brackets,
                 position: el.index!,
                 size: el[0].length
@@ -186,7 +197,7 @@ export class Compiler {
         return s === '$'
     }
 
-    readFunctionFields(name: string): FunctionData {
+    readFunctionFields(raw: MatchedFunctionData): FunctionData {
         let closed = false
         let escape = false
         
@@ -194,7 +205,7 @@ export class Compiler {
 
         let len = 0
 
-        const ref = this.createFunction(name, '', [
+        const ref = this.createFunction(raw.name, '', [
             {
                 value: '',
                 overloads: []
@@ -244,7 +255,7 @@ export class Compiler {
         }
 
         if (!closed) {
-            throw new Error(`${name} is missing closure bracket.`)
+            this.throw(raw, `${name} is missing closure bracket`)
         }
 
         return ref 
@@ -308,8 +319,31 @@ export class Compiler {
         return t === '\\'
     }
 
-    private throw<T>(err: string): T {
-        throw new Error(err)
+    private getPosition(ref: MatchedFunctionData): Position {
+        let start = 0
+
+        const pos: Position = {
+            line: 1,
+            column: 0
+        }
+
+        const limit = ref.position + 1
+
+        while (start !== limit) {
+            const char = this.code[start++]
+
+            char === '\n' ? (
+                pos.line++,
+                pos.column = 0
+            ) : pos.column++
+        }
+
+        return pos 
+    }
+
+    private throw<T>(ref: MatchedFunctionData, err: string): T {
+        const pos = this.getPosition(ref)
+        throw new CompileError(`${err} at ${pos.line}:${pos.column} ${this.reference ? `(from ${this.reference.toString()})` : ''}`)
     }
 
     at(i: number): string | null {
@@ -336,10 +370,10 @@ export class Compiler {
             next.name : next.brackets === false ? 
                 this.createFunction(next.name) : 
                 next.brackets === true ?
-                    !this.isBracketOpen(this.char()!) ? this.throw(`${next.name} requires brackets.`) :
-                    this.readFunctionFields(next.name) :
+                    !this.isBracketOpen(this.char()!) ? this.throw(next, `${next.name} requires brackets`) :
+                    this.readFunctionFields(next) :
                 !this.isBracketOpen(this.char()!) ? this.createFunction(next.name) :
-                this.readFunctionFields(next.name)
+                this.readFunctionFields(next)
     }
 
     createFunction(name: string, inside: null | string = null, fields: FieldData[] = []): FunctionData {
@@ -372,5 +406,11 @@ export class Compiler {
      */
     getFunctions(): FunctionData[] {
         return this.functions
+    }
+}
+
+export class CompileError extends Error {
+    constructor(err: string) {
+        super(err)
     }
 }

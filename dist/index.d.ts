@@ -70,12 +70,18 @@ export interface FunctionData {
      */
     id: string;
 }
+export interface Position {
+    column: number;
+    line: number;
+}
 export declare function iterate<K, R>(iterable: IterableIterator<K>, fn: (el: K) => R): R[];
 export declare type RawFunctionUnion = string[] | RawFunctionData[] | (string[] | RawFunctionData[]);
 /**
  * The main instance of a compiler.
  */
-export declare class Compiler {
+export declare class Compiler<T extends unknown & {
+    toString(): string;
+}> {
     #private;
     static insensitive: boolean;
     static BRACKET_FUNCTIONS: Record<string, true | null>;
@@ -83,19 +89,20 @@ export declare class Compiler {
     private static REGEX;
     private code;
     private index;
+    private reference?;
     private functions;
     result: string;
     /**
      * Instantiates a new compiler.
      * @param code The code to compile.
      */
-    constructor(code: string);
+    constructor(code: string, reference?: T);
     getMatchedFunctions(): MatchedFunctionData[];
     private get systemID();
     static setFunctions(fns: Array<string | RawFunctionData>, insensitive?: boolean): boolean;
     skip(n: number): void;
     isDollar(s: string): boolean;
-    readFunctionFields(name: string): FunctionData;
+    readFunctionFields(raw: MatchedFunctionData): FunctionData;
     /**
      * Returns the compiled code.
      */
@@ -110,6 +117,7 @@ export declare class Compiler {
     isBracketClosure(t: string): boolean;
     isSemicolon(t: string): boolean;
     isEscapeChar(t: string): boolean;
+    private getPosition;
     private throw;
     at(i: number): string | null;
     parseFunction(allow?: boolean): FunctionData | null | string;
@@ -122,5 +130,8 @@ export declare class Compiler {
      * Gets functions used in the code.
      */
     getFunctions(): FunctionData[];
+}
+export declare class CompileError extends Error {
+    constructor(err: string);
 }
 //# sourceMappingURL=index.d.ts.map

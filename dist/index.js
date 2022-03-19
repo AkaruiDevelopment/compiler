@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Compiler = exports.iterate = void 0;
+exports.CompileError = exports.Compiler = exports.iterate = void 0;
 function iterate(iterable, fn) {
     let item;
     const arr = new Array();
@@ -26,6 +26,7 @@ class Compiler {
     static REGEX = null;
     code;
     index = 0;
+    reference;
     functions = new Array();
     #matches;
     #id = 0;
@@ -34,17 +35,19 @@ class Compiler {
      * Instantiates a new compiler.
      * @param code The code to compile.
      */
-    constructor(code) {
+    constructor(code, reference) {
         this.code = code;
+        this.reference = reference;
         this.#matches = this.getMatchedFunctions();
     }
     getMatchedFunctions() {
         const matches = this.code.matchAll(Compiler.REGEX);
         return iterate(matches, (el) => {
-            const has = Compiler.BRACKET_FUNCTIONS[el[0]];
+            const name = Compiler.insensitive ? getString(Compiler.FUNCTIONS.find(c => getString(c).toLowerCase() === el[0].toLowerCase())) : el[0];
+            const has = Compiler.BRACKET_FUNCTIONS[name];
             const brackets = has === undefined ? false : has;
             return {
-                name: Compiler.insensitive ? getString(Compiler.FUNCTIONS.find(c => getString(c).toLowerCase() === el[0].toLowerCase())) : el[0],
+                name,
                 brackets,
                 position: el.index,
                 size: el[0].length
@@ -77,12 +80,12 @@ class Compiler {
     isDollar(s) {
         return s === '$';
     }
-    readFunctionFields(name) {
+    readFunctionFields(raw) {
         let closed = false;
         let escape = false;
         this.skip(1);
         let len = 0;
-        const ref = this.createFunction(name, '', [
+        const ref = this.createFunction(raw.name, '', [
             {
                 value: '',
                 overloads: []
@@ -131,7 +134,7 @@ class Compiler {
             }
         }
         if (!closed) {
-            throw new Error(`${name} is missing closure bracket.`);
+            this.throw(raw, `${name} is missing closure bracket`);
         }
         return ref;
     }
@@ -178,8 +181,23 @@ class Compiler {
     isEscapeChar(t) {
         return t === '\\';
     }
-    throw(err) {
-        throw new Error(err);
+    getPosition(ref) {
+        let start = 0;
+        const pos = {
+            line: 1,
+            column: 0
+        };
+        const limit = ref.position + 1;
+        while (start !== limit) {
+            const char = this.code[start++];
+            char === '\n' ? (pos.line++,
+                pos.column = 0) : pos.column++;
+        }
+        return pos;
+    }
+    throw(ref, err) {
+        const pos = this.getPosition(ref);
+        throw new CompileError(`${err} at ${pos.line}:${pos.column} ${this.reference ? `(from ${this.reference.toString()})` : ''}`);
     }
     at(i) {
         return this.code[i] ?? null;
@@ -199,10 +217,10 @@ class Compiler {
             next.name : next.brackets === false ?
             this.createFunction(next.name) :
             next.brackets === true ?
-                !this.isBracketOpen(this.char()) ? this.throw(`${next.name} requires brackets.`) :
-                    this.readFunctionFields(next.name) :
+                !this.isBracketOpen(this.char()) ? this.throw(next, `${next.name} requires brackets`) :
+                    this.readFunctionFields(next) :
                 !this.isBracketOpen(this.char()) ? this.createFunction(next.name) :
-                    this.readFunctionFields(next.name);
+                    this.readFunctionFields(next);
     }
     createFunction(name, inside = null, fields = []) {
         return {
@@ -232,4 +250,10 @@ class Compiler {
     }
 }
 exports.Compiler = Compiler;
+class CompileError extends Error {
+    constructor(err) {
+        super(err);
+    }
+}
+exports.CompileError = CompileError;
 //# sourceMappingURL=index.js.map

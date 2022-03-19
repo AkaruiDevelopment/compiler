@@ -26,7 +26,7 @@ __1.Compiler.setFunctions([
     }
 ], true);
 console.log(__1.Compiler);
-const t = new __1.Compiler(`$autHorId $messAge[$authorid]`);
+const t = new __1.Compiler(`$autHorId $djsEval`, 'owa');
 console.log((0, util_1.inspect)(t.start(), { colors: true, depth: 5 }));
 const code = "uwu $authorID uwuwuwuwu $authorID $username $authorID $username".repeat(1000);
 function perf() {
@@ -36,5 +36,4 @@ function perf() {
     console.log(`${performance.now() - t}ms to parse ${c["functions"].length} functions in string of ${code.length} characters`);
     return perf;
 }
-perf()()()()();
 //# sourceMappingURL=compiler.js.map
